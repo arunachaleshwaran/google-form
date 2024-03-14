@@ -1,17 +1,14 @@
 import './App.css';
 import EachField from './components/EachField';
 import type { Field } from './models';
-// A
+import useFormsStore from './Store';
 function App() {
   const InitialField: Field = {
     question: '',
     type: 'text',
     required: false,
   };
-  const questions: Array<Field> = [
-    { question: 'q1', type: 'number', required: true },
-    { question: 'q2', type: 'text', required: false },
-  ];
+  const questions = useFormsStore(state => state.state);
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.target);
