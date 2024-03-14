@@ -8,7 +8,10 @@ export default function EachField({
   readonly field: Field;
   readonly id: number;
 }) {
-  const changeField = useFormsStore(state => state.changeField);
+  const [changeField, removeField] = useFormsStore(state => [
+    state.changeField,
+    state.removeField,
+  ]);
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement & HTMLSelectElement>
   ) => {
@@ -25,34 +28,35 @@ export default function EachField({
     );
   };
   return (
-    <div className='question'>
-      <fieldset id={`${id}`}>
-        <label htmlFor={`${id}question`}>Question</label>
-        <input
-          id='question'
-          name={`${id}question`}
-          value={field.question}
-          onChange={handleChange}
-        />
-        <label htmlFor={`${id}type`}>Type</label>
-        <select
-          id='type'
-          name={`${id}type`}
-          value={field.type}
-          onChange={handleChange}>
-          <option value='text'>Text</option>
-          <option value='number'>Number</option>
-          <option value='date'>Date</option>
-        </select>
-        <label htmlFor={`${id}required`}>Required</label>
-        <input
-          checked={field.required}
-          id='required'
-          name={`${id}required`}
-          type='checkbox'
-          onChange={handleChange}
-        />
-      </fieldset>
-    </div>
+    <fieldset id={`${id}`}>
+      <label htmlFor={`${id}question`}>Question</label>
+      <input
+        id='question'
+        name={`${id}question`}
+        value={field.question}
+        onChange={handleChange}
+      />
+      <label htmlFor={`${id}type`}>Type</label>
+      <select
+        id='type'
+        name={`${id}type`}
+        value={field.type}
+        onChange={handleChange}>
+        <option value='text'>Text</option>
+        <option value='number'>Number</option>
+        <option value='date'>Date</option>
+      </select>
+      <label htmlFor={`${id}required`}>Required</label>
+      <input
+        checked={field.required}
+        id='required'
+        name={`${id}required`}
+        type='checkbox'
+        onChange={handleChange}
+      />
+      <button type='button' onClick={() => removeField(id)}>
+        X
+      </button>
+    </fieldset>
   );
 }
