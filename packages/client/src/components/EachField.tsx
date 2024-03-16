@@ -1,6 +1,13 @@
 import type { Field } from '../models';
 import useFormsStore from '../Store';
-
+export const parseFieldName = (name: string) => {
+  const res = /(?<index>\d+)(?<fieldName>\w+)/u.exec(name);
+  if (res === null) throw new Error('Invalid name attribute');
+  return res.groups as {
+    index: `${number}`;
+    fieldName: keyof Field;
+  };
+};
 export default function EachField({
   field,
   id,
@@ -16,11 +23,7 @@ export default function EachField({
     event: React.ChangeEvent<HTMLInputElement & HTMLSelectElement>
   ) => {
     console.log(event.target.value);
-    const res = /(?<index>\d+)(?<fieldName>\w+)/u.exec(
-      event.target.name
-    );
-    if (res === null) throw new Error('Invalid name attribute');
-    const { index, fieldName } = res.groups;
+    const { index, fieldName } = parseFieldName(event.target.name);
     changeField(
       Number(index),
       fieldName as keyof Field,

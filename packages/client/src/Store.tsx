@@ -3,6 +3,7 @@ import { create } from 'zustand';
 
 type FormsStore = {
   state: Array<Readonly<Field>>;
+  load: (state: Array<Readonly<Field>>) => void;
   addField: () => void;
   removeField: (index: number) => void;
   changeField: <T extends keyof Field>(
@@ -17,10 +18,10 @@ const InitialField: Field = {
   required: false,
 };
 const useFormsStore = create<FormsStore>()(set => ({
-  state: [
-    { question: 'q1', type: 'number', required: true },
-    { question: 'q2', type: 'text', required: false },
-  ] as Array<Field>,
+  state: [] as Array<Field>,
+  load: state => {
+    set({ state });
+  },
   addField: () => {
     set(state => {
       const newState = [...state.state];
