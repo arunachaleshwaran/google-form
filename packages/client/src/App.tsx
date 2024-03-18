@@ -19,10 +19,46 @@ function App() {
     },
     initialData: [],
   });
+  const parseDataFromForm = (formData: FormData): Array<Field> => {
+    type Property = keyof Field;
+    const questionList: Array<
+      Partial<Record<Property, Field[Property]>>
+    > = [];
+    for (const [key, value] of formData) {
+      const {
+        index,
+        fieldName,
+      }: { index: `${number}`; fieldName: Property } =
+        parseFieldName(key);
+      const eachField = questionList[Number(index)] ?? {};
+      switch (fieldName) {
+        case 'required':
+          eachField[fieldName] = value === 'on';
+          break;
+        default:
+          eachField[fieldName] = value as Field[Property];
+      }
+      questionList[Number(index)] = eachField;
+    }
+    // Enter Default values
+    for (const question of questionList) {
+      if (!('required' in question)) question.required = false;
+    }
+    return questionList as Array<Field>;
+  };
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    console.log(formData);
+    const questionList = parseDataFromForm(
+      new FormData(event.target as HTMLFormElement)
+    );
+    const myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+    void fetch('http://localhost:3000/', {
+      method: 'POST',
+      headers: myHeaders,
+      body: JSON.stringify(questionList),
+      redirect: 'follow',
+    });
   };
   return (
     <form onSubmit={handleSubmit}>

@@ -9,23 +9,23 @@ type FormsStore = {
   changeField: <T extends keyof Field>(
     index: number,
     name: T,
-    value: Field[T]
+    target: HTMLInputElement & HTMLSelectElement
   ) => void;
 };
-const InitialField: Field = {
+const INITIAL_FIELD: Field = {
   question: '',
   type: 'text',
   required: false,
 };
 const useFormsStore = create<FormsStore>()(set => ({
-  state: [] as Array<Field>,
+  state: [] as Array<Readonly<Field>>,
   load: state => {
     set({ state });
   },
   addField: () => {
     set(state => {
       const newState = [...state.state];
-      newState.push({ ...InitialField });
+      newState.push({ ...INITIAL_FIELD });
       return { state: newState };
     });
   },
@@ -36,7 +36,17 @@ const useFormsStore = create<FormsStore>()(set => ({
       return { state: newState };
     });
   },
-  changeField: (index, name, value) => {
+  changeField: <T extends keyof Field>(
+    index: number,
+    name: T,
+    target: HTMLInputElement & HTMLSelectElement
+  ) => {
+    let { value }: { value: Field[keyof Field] } = target;
+    switch (target.type) {
+      case 'checkbox':
+        value = target.checked;
+        break;
+    }
     set(state => {
       const newState = [...state.state];
       newState[index] = { ...newState[index], [name]: value };
