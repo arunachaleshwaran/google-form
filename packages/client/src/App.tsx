@@ -1,23 +1,23 @@
 import './App.css';
 import EachField, { parseFieldName } from './components/EachField';
+import EditTitle from './components/EditTitle';
 import type { Field } from './models';
 import useFormsStore from './Store';
 import { useQuery } from '@tanstack/react-query';
 function App() {
-  const [questions, addField, load] = useFormsStore(state => [
-    state.state,
+  const [fields, addField, load] = useFormsStore(state => [
+    state.fields,
     state.addField,
     state.load,
   ]);
-  useQuery<Array<Field>>({
+  useQuery<Parameters<typeof load>[0]>({
     queryKey: ['questions'],
     queryFn: async () => {
       const res = await fetch('http://localhost:3000/');
-      const data = (await res.json()) as Array<Field>;
+      const data = (await res.json()) as Parameters<typeof load>[0];
       load(data);
       return data;
     },
-    initialData: [],
   });
   const parseDataFromForm = (formData: FormData): Array<Field> => {
     type Property = keyof Field;
@@ -48,21 +48,23 @@ function App() {
   };
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const questionList = parseDataFromForm(
-      new FormData(event.target as HTMLFormElement)
-    );
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
+    const formData = new FormData(event.target as HTMLFormElement);
+    const title = formData.get('title') as string;
+    formData.delete('title');
+    const currFields = parseDataFromForm(formData);
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
     void fetch('http://localhost:3000/', {
       method: 'POST',
-      headers: myHeaders,
-      body: JSON.stringify(questionList),
+      headers,
+      body: JSON.stringify({ title, fields: currFields }),
       redirect: 'follow',
     });
   };
   return (
     <form onSubmit={handleSubmit}>
-      {questions.map((field, index) => (
+      <EditTitle />
+      {fields.map((field, index) => (
         // eslint-disable-next-line react/no-array-index-key
         <EachField key={index} field={field} id={index} />
       ))}

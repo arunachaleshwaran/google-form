@@ -3,9 +3,9 @@ import { create } from 'zustand';
 
 type FormsStore = {
   title: string;
-  setTitle: (title: string) => void;
   fields: Array<Readonly<Field>>;
-  load: (fields: Array<Readonly<Field>>) => void;
+  setTitle: (title: string) => void;
+  load: (res: Pick<FormsStore, 'fields' | 'title'>) => void;
   addField: () => void;
   removeField: (index: number) => void;
   changeField: <T extends keyof Field>(
@@ -20,13 +20,13 @@ const INITIAL_FIELD: Field = {
   required: false,
 };
 const useFormsStore = create<FormsStore>()(set => ({
-  title: 'TITLE',
+  title: '',
+  fields: [] as Array<Readonly<Field>>,
   setTitle: title => {
     set({ title });
   },
-  fields: [] as Array<Readonly<Field>>,
-  load: fields => {
-    set({ fields });
+  load: ({ fields, title }) => {
+    set({ fields, title });
   },
   addField: () => {
     set(state => {

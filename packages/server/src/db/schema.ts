@@ -9,6 +9,7 @@ export type Field = {
 export type Schema = {
   form: {
     _id: ObjectId;
+    title: string;
     fields: Array<Field>;
     answer_collection: string;
   };
