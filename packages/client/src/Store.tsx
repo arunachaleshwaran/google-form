@@ -2,8 +2,10 @@ import type { Field } from './models';
 import { create } from 'zustand';
 
 type FormsStore = {
-  state: Array<Readonly<Field>>;
-  load: (state: Array<Readonly<Field>>) => void;
+  title: string;
+  setTitle: (title: string) => void;
+  fields: Array<Readonly<Field>>;
+  load: (fields: Array<Readonly<Field>>) => void;
   addField: () => void;
   removeField: (index: number) => void;
   changeField: <T extends keyof Field>(
@@ -18,22 +20,26 @@ const INITIAL_FIELD: Field = {
   required: false,
 };
 const useFormsStore = create<FormsStore>()(set => ({
-  state: [] as Array<Readonly<Field>>,
-  load: state => {
-    set({ state });
+  title: 'TITLE',
+  setTitle: title => {
+    set({ title });
+  },
+  fields: [] as Array<Readonly<Field>>,
+  load: fields => {
+    set({ fields });
   },
   addField: () => {
     set(state => {
-      const newState = [...state.state];
+      const newState = [...state.fields];
       newState.push({ ...INITIAL_FIELD });
-      return { state: newState };
+      return { fields: newState };
     });
   },
   removeField: (index: number) => {
     set(state => {
-      const newState = [...state.state];
+      const newState = [...state.fields];
       newState.splice(index, 1);
-      return { state: newState };
+      return { fields: newState };
     });
   },
   changeField: <T extends keyof Field>(
@@ -48,9 +54,9 @@ const useFormsStore = create<FormsStore>()(set => ({
         break;
     }
     set(state => {
-      const newState = [...state.state];
+      const newState = [...state.fields];
       newState[index] = { ...newState[index], [name]: value };
-      return { state: newState };
+      return { fields: newState };
     });
   },
 }));

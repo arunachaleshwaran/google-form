@@ -41,6 +41,10 @@ module.exports = {
     ],
     'sort-keys': 0,
     'default-case': 'off',
+    '@typescript-eslint/no-misused-promises': [
+      'error',
+      { checksVoidReturn: false },
+    ],
     '@typescript-eslint/no-confusing-void-expression': [
       'error',
       { ignoreArrowShorthand: true },
