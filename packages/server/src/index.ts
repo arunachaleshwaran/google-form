@@ -14,32 +14,52 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', async (_, res, next) => {
+type GetIDType =
+  | [
+      Record<string, never>,
+      Array<Pick<Schema['form'], '_id' | 'title'>>,
+    ]
+  | [{ id: Schema['form']['_id'] }, Schema['form']];
+app.get<
+  '/form/:id',
+  GetIDType[0],
+  GetIDType[1],
+  undefined,
+  Record<string, never>
+>('/form/:id', async (req, res, next) => {
   const client = await connect();
   const forms = collection(client, 'form');
-  const result = await forms.findOne({
-    _id: new ObjectId('65fc6cb83ca29c14880f8450'),
-  });
-  await client.close();
-  if (!result) {
-    next(new Error('Form not found'));
-    return;
+  let result: Parameters<typeof res.json>[0] | null = null;
+  if ('id' in req.params) {
+    result = await forms.findOne(
+      {
+        _id: new ObjectId(req.params.id),
+      },
+      { projection: { _id: 0 } }
+    );
+    if (result) res.json(result);
+    else next(new Error('Form not found'));
+  } else {
+    result = await forms
+      .find({}, { projection: { title: 1 } })
+      .toArray();
+    res.json(result);
   }
-  res.json(result);
+  await client.close();
 });
 app.post<
-  '/',
-  unknown,
+  '/form/:id',
+  { id: Schema['form']['_id'] },
   undefined,
   Pick<Schema['form'], 'fields' | 'title'>,
   Record<string, never>
->('/', async (req, res) => {
+>('/form/:id', async (req, res) => {
   const client = await connect();
   const forms = collection(client, 'form');
   const { fields, title } = req.body;
   await forms.updateOne(
     {
-      _id: new ObjectId('65fc6cb83ca29c14880f8450'),
+      _id: new ObjectId(req.params.id),
     },
     {
       $set: {
@@ -51,10 +71,9 @@ app.post<
   await client.close();
   res.send();
 });
-const errorHandler: ErrorRequestHandler = (err, _, res, next) => {
+const errorHandler: ErrorRequestHandler = (err, _, res, __) => {
   console.error(err);
   res.status(500).send('Something broke!');
-  next();
 };
 app.use(errorHandler);
 app.listen(PORT, () => {

@@ -1,4 +1,4 @@
-import type { ObjectId } from 'mongodb';
+import type { WithId } from 'mongodb';
 
 export type Field = {
   question: string;
@@ -7,10 +7,9 @@ export type Field = {
 };
 
 export type Schema = {
-  form: {
-    _id: ObjectId;
+  form: WithId<{
     title: string;
     fields: Array<Field>;
     answer_collection: string;
-  };
+  }>;
 };

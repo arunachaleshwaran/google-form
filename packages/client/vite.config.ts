@@ -1,3 +1,4 @@
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import { defineConfig } from 'vite';
 import eslintPlugin from 'vite-plugin-eslint';
 import react from '@vitejs/plugin-react';
@@ -10,6 +11,8 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    // eslint-disable-next-line new-cap
+    TanStackRouterVite(),
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     eslintPlugin({ fix: true, include: '**/*.+(cjs|ts|tsx)' }),
   ],

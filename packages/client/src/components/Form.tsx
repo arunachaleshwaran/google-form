@@ -1,10 +1,9 @@
-import './App.css';
-import EachField, { parseFieldName } from './components/EachField';
-import EditTitle from './components/EditTitle';
-import type { Field } from './models';
-import useFormsStore from './Store';
+import EachField, { parseFieldName } from '../components/EachField';
+import EditTitle from '../components/EditTitle';
+import type { Field } from '../models';
+import useFormsStore from '../Store';
 import { useQuery } from '@tanstack/react-query';
-function App() {
+export default function Form({ id }: { readonly id: string }) {
   const [fields, addField, load] = useFormsStore(state => [
     state.fields,
     state.addField,
@@ -13,7 +12,7 @@ function App() {
   useQuery<Parameters<typeof load>[0]>({
     queryKey: ['questions'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:3000/');
+      const res = await fetch(`http://localhost:3000/form/${id}`);
       const data = (await res.json()) as Parameters<typeof load>[0];
       load(data);
       return data;
@@ -54,7 +53,7 @@ function App() {
     const currFields = parseDataFromForm(formData);
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
-    void fetch('http://localhost:3000/', {
+    void fetch(`http://localhost:3000/form/${id}`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ title, fields: currFields }),
@@ -75,5 +74,3 @@ function App() {
     </form>
   );
 }
-
-export default App;
