@@ -1,5 +1,5 @@
 export type Field = {
   question: string;
-  type: string;
+  type: 'date' | 'number' | 'text';
   required: boolean;
 };

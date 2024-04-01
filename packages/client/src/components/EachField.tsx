@@ -11,9 +11,11 @@ export const parseFieldName = (name: string) => {
 export default function EachField({
   field,
   id,
+  preview,
 }: {
   readonly field: Field;
   readonly id: number;
+  readonly preview: boolean;
 }) {
   const [changeField, removeField] = useFormsStore(state => [
     state.changeField,
@@ -29,6 +31,13 @@ export default function EachField({
       event.target
     );
   };
+  if (preview)
+    return (
+      <fieldset id={`${id}`}>
+        <legend>{`${field.question} ${field.required ? '*' : ''}`}</legend>
+        <input name={field.question} type={field.type} />
+      </fieldset>
+    );
   return (
     <fieldset id={`${id}`}>
       <label htmlFor={`question-${id}`}>Question</label>

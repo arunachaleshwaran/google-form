@@ -41,6 +41,7 @@ module.exports = {
     ],
     'sort-keys': 0,
     'default-case': 'off',
+    '@typescript-eslint/no-unnecessary-condition': 'warn',
     '@typescript-eslint/no-misused-promises': [
       'error',
       { checksVoidReturn: false },
@@ -111,4 +112,12 @@ module.exports = {
     'max-lines-per-function': 'off',
     'prettier/prettier': 'error',
   },
+  overrides: [
+    {
+      files: ['packages/client/src/routeTree.gen.ts'],
+      rules: {
+        'capitalized-comments': 'off',
+      },
+    },
+  ],
 };

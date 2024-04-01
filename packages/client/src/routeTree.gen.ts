@@ -17,7 +17,10 @@ import { Route as rootRoute } from './routes/__root';
 // Create Virtual Routes
 
 const IndexLazyImport = createFileRoute('/')();
-const FormIdLazyImport = createFileRoute('/form/$id')();
+const FormIdIndexLazyImport = createFileRoute('/form/$id/')();
+const FormIdPreviewLazyImport = createFileRoute(
+  '/form/$id/preview'
+)();
 
 // Create/Update Routes
 
@@ -28,11 +31,18 @@ const IndexLazyRoute = IndexLazyImport.update({
   import('./routes/index.lazy').then(d => d.Route)
 );
 
-const FormIdLazyRoute = FormIdLazyImport.update({
-  path: '/form/$id',
+const FormIdIndexLazyRoute = FormIdIndexLazyImport.update({
+  path: '/form/$id/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
-  import('./routes/form.$id.lazy').then(d => d.Route)
+  import('./routes/form/$id/index.lazy').then(d => d.Route)
+);
+
+const FormIdPreviewLazyRoute = FormIdPreviewLazyImport.update({
+  path: '/form/$id/preview',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/form/$id/preview.lazy').then(d => d.Route)
 );
 
 // Populate the FileRoutesByPath interface
@@ -43,8 +53,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport;
       parentRoute: typeof rootRoute;
     };
-    '/form/$id': {
-      preLoaderRoute: typeof FormIdLazyImport;
+    '/form/$id/preview': {
+      preLoaderRoute: typeof FormIdPreviewLazyImport;
+      parentRoute: typeof rootRoute;
+    };
+    '/form/$id/': {
+      preLoaderRoute: typeof FormIdIndexLazyImport;
       parentRoute: typeof rootRoute;
     };
   }
@@ -54,7 +68,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   IndexLazyRoute,
-  FormIdLazyRoute,
+  FormIdPreviewLazyRoute,
+  FormIdIndexLazyRoute,
 ]);
 
 /* prettier-ignore-end */

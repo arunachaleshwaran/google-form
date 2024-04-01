@@ -1,5 +1,7 @@
 import { collection, connect } from './db/mongo.js';
 import type { ErrorRequestHandler } from 'express';
+import ExpressError from './express-error.js';
+import HttpStatusCode from './HttpStatusCode.js';
 import { ObjectId } from 'mongodb';
 import type { Schema } from './db/schema.js';
 import cors from 'cors';
@@ -71,9 +73,45 @@ app.post<
   await client.close();
   res.send();
 });
+app.post<
+  '/answer/:id',
+  { id: Schema['form']['_id'] },
+  undefined,
+  Schema[Schema['form']['answer_collection']],
+  Record<string, never>
+  // eslint-disable-next-line max-statements
+>('/answer/:id', async (req, res, next) => {
+  const { id } = req.params;
+  const client = await connect();
+  const forms = collection(client, 'form');
+  const form = await forms.findOne(
+    {
+      _id: new ObjectId(id),
+    },
+    // eslint-disable-next-line camelcase
+    { projection: { fields: 1, answer_collection: 1 } }
+  );
+  if (!form) {
+    next(new ExpressError('Form not found', HttpStatusCode.NotFound));
+    await client.close();
+    return;
+  }
+  const { answer_collection: answerCollection } = form;
+  const answers = collection(client, answerCollection);
+  const answer = req.body;
+  await answers.insertOne(answer);
+  await client.close();
+  res.send();
+});
 const errorHandler: ErrorRequestHandler = (err, _, res, __) => {
   console.error(err);
-  res.status(500).send('Something broke!');
+  if (err instanceof ExpressError)
+    res.status(err.status).send(err.message);
+  else
+    res
+      .status(HttpStatusCode.InternalServerError)
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+      .send(err?.message || 'Something went wrong');
 };
 app.use(errorHandler);
 app.listen(PORT, () => {
