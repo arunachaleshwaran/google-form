@@ -1,13 +1,16 @@
 import EachField, { parseFieldName } from '../components/EachField';
 import EditTitle from '../components/EditTitle';
 import type { Field } from '../models';
+import type { FormsStore } from '../Store';
+import { useEffect } from 'react';
 import useFormsStore from '../Store';
-import { useQuery } from '@tanstack/react-query';
 export default function Form({
   id,
+  data,
   preview,
 }: {
   readonly id: string;
+  readonly data: Parameters<FormsStore['load']>[0];
   readonly preview: boolean;
 }) {
   const [fields, title, addField, load] = useFormsStore(state => [
@@ -16,15 +19,9 @@ export default function Form({
     state.addField,
     state.load,
   ]);
-  useQuery<Parameters<typeof load>[0]>({
-    queryKey: ['questions'],
-    queryFn: async () => {
-      const res = await fetch(`http://localhost:3000/form/${id}`);
-      const data = (await res.json()) as Parameters<typeof load>[0];
-      load(data);
-      return data;
-    },
-  });
+  useEffect(() => {
+    load(data);
+  }, [data]);
   const parseDataFromForm = (formData: FormData): Array<Field> => {
     type Property = keyof Field;
     const questionList: Array<

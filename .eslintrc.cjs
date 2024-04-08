@@ -77,7 +77,7 @@ module.exports = {
     ],
     '@typescript-eslint/no-magic-numbers': [
       'warn',
-      { ignore: [0, -1], enforceConst: true },
+      { ignoreTypeIndexes: true },
     ],
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/consistent-type-definitions': [
@@ -117,6 +117,12 @@ module.exports = {
       files: ['packages/client/src/routeTree.gen.ts'],
       rules: {
         'capitalized-comments': 'off',
+      },
+    },
+    {
+      files: ['packages/client/src/routes/**/*.tsx'],
+      rules: {
+        '@typescript-eslint/no-use-before-define': 'off',
       },
     },
   ],

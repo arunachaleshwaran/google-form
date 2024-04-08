@@ -12,7 +12,8 @@ const root = document.getElementById('root');
 if (root === null) {
   throw new Error('Root element not found');
 }
-const router = createRouter({ routeTree });
+const queryClient = new QueryClient();
+const router = createRouter({ routeTree, context: { queryClient } });
 
 declare module '@tanstack/react-router' {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -20,7 +21,6 @@ declare module '@tanstack/react-router' {
     router: typeof router;
   }
 }
-const queryClient = new QueryClient();
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>

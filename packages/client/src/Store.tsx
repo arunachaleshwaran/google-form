@@ -1,7 +1,7 @@
 import type { Field } from './models';
 import { create } from 'zustand';
 
-type FormsStore = {
+export type FormsStore = {
   title: string;
   fields: Array<Readonly<Field>>;
   setTitle: (title: string) => void;
